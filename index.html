@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>신청곡 리스트</title>
+<style>
+:root { --bg:#f4f5f9; --surface:#fff; --fg:#1c2033; --muted:#6a7089; --line:#e3e6ef; --accent:#d6336c; --accent-soft:#fde8f0; --teal:#0f8b8d; --teal-soft:#dff4f3; --sky:#1b7fc4; --sky-soft:#e3f1fb; --star:#f08c00; --shadow:0 1px 2px rgba(30,40,80,.06),0 6px 20px rgba(30,40,80,.06); }
+@media (prefers-color-scheme: dark) { :root { --bg:#14161f; --surface:#1d2030; --fg:#eceef6; --muted:#9aa1bb; --line:#2d3146; --accent:#f06595; --accent-soft:#3a1f2b; --teal:#38d9d4; --teal-soft:#10302f; --sky:#74c0fc; --sky-soft:#142b3d; --star:#ffc233; --shadow:none; } }
+* { box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif; -webkit-text-size-adjust:100%; }
+button { font:inherit; color:inherit; cursor:pointer; }
+.wrap { max-width:760px; margin:0 auto; padding:0 16px 80px; }
+header.hero { padding:28px 0 14px; }
+header.hero h1 { margin:0; font-size:26px; letter-spacing:-.02em; }
+header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px; margin:0 0 12px; box-shadow:var(--shadow); }
+.card h3 { margin:0 0 6px; font-size:13px; color:var(--accent); letter-spacing:.02em; }
+#notes { margin:0; padding-left:18px; color:var(--fg); font-size:14px; }
+#notes li { margin:3px 0; }
+#paid-body { font-weight:700; }
+#acts { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:0 0 12px; }
+.act { display:grid; gap:2px; text-align:left; text-decoration:none; color:var(--fg); background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 14px; box-shadow:var(--shadow); }
+.act b { font-size:14px; } .act span { font-size:13px; color:var(--muted); word-break:break-all; } .act em { font-style:normal; font-size:12px; color:var(--accent); }
+.act:hover { border-color:var(--accent); }
+#bar { position:sticky; top:0; z-index:5; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(8px); padding:8px 0 6px; margin:0 -16px; padding-inline:16px; border-bottom:1px solid var(--line); }
+.row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.seg { display:inline-flex; padding:3px; background:var(--line); border-radius:999px; }
+.seg button { border:0; background:transparent; padding:5px 14px; border-radius:999px; font-size:13px; font-weight:700; color:var(--muted); }
+.seg button.on { background:var(--surface); color:var(--fg); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.sbox { position:relative; flex:1 1 160px; min-width:140px; }
+.sbox input { width:100%; height:34px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--fg); padding:0 32px 0 14px; font:inherit; font-size:14px; }
+.sbox input:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+.sbox button { position:absolute; right:6px; top:5px; width:24px; height:24px; border:0; border-radius:50%; background:transparent; color:var(--muted); }
+.fs { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.fs button { border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:3px 11px; font-size:12px; font-weight:600; color:var(--muted); }
+.fs button.on { background:var(--fg); color:var(--bg); border-color:var(--fg); }
+.nav { display:flex; gap:5px; overflow-x:auto; padding:7px 0 2px; scrollbar-width:none; }
+.nav::-webkit-scrollbar { display:none; }
+.ln { flex:none; min-width:30px; height:28px; padding:0 8px; border:1px solid var(--line); background:var(--surface); border-radius:9px; font-size:13px; font-weight:700; }
+.ln:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+.ln:disabled { opacity:.35; cursor:default; }
+.meta { display:flex; justify-content:space-between; align-items:baseline; padding:10px 2px 4px; font-size:12px; color:var(--muted); }
+.legend { display:flex; gap:10px; }
+.legend .a { color:var(--teal); font-weight:700; } .legend .b { color:var(--accent); font-weight:700; } .legend .c { color:var(--star); font-weight:700; }
+.grp { margin:10px 0 16px; }
+.grp h2 { display:flex; align-items:center; gap:8px; margin:0 0 6px; font-size:17px; }
+.grp h2 span { display:grid; place-items:center; min-width:30px; height:30px; padding:0 8px; background:var(--fg); color:var(--bg); border-radius:9px; font-size:15px; }
+.grp h2 em { font-style:normal; font-size:12px; color:var(--muted); font-weight:400; }
+.grp ul { list-style:none; margin:0; padding:0; background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); }
+.grp li { display:flex; align-items:center; gap:10px; padding:9px 14px; border-top:1px solid var(--line); }
+.grp li:first-child { border-top:0; }
+.grp li i { flex:none; width:16px; text-align:center; font-style:normal; font-size:13px; }
+.grp li.m1 i { color:var(--teal); } .grp li.m2 i { color:var(--accent); }
+.grp li p { margin:0; flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:0 8px; align-items:baseline; }
+.grp li b { font-weight:700; } .grp li span { color:var(--muted); font-size:14px; }
+.grp li u { text-decoration:none; color:var(--star); font-size:15px; }
+.none { color:var(--muted); font-size:14px; padding:2px 4px; }
+.empty { text-align:center; color:var(--muted); padding:48px 0; }
+#top { position:fixed; right:16px; bottom:18px; width:44px; height:44px; border-radius:50%; border:0; background:var(--accent); color:#fff; font-size:18px; box-shadow:0 4px 14px rgba(0,0,0,.25); opacity:0; pointer-events:none; transition:opacity .2s; }
+#top.on { opacity:1; pointer-events:auto; }
+#toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%,20px); width:max-content; max-width:min(92vw,420px); background:var(--fg); color:var(--bg); padding:11px 16px; border-radius:14px; font-size:13px; line-height:1.55; text-align:center; z-index:20; opacity:0; pointer-events:none; transition:.2s; }
+#toast.on { opacity:1; transform:translate(-50%,0); }
+.foot { text-align:center; font-size:12px; color:var(--muted); margin-top:20px; }
+[hidden] { display:none !important; }
+.grp li u { margin-left:4px; }
+.cp { flex:none; margin-left:auto; height:28px; padding:0 11px; border:1px solid var(--line); background:var(--bg); color:var(--muted); border-radius:999px; font-size:12px; font-weight:700; }
+.cp:hover { border-color:var(--accent); color:var(--accent); }
+.cp.done { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+.new { display:inline-block; margin-left:5px; padding:1px 6px; border-radius:999px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; line-height:1.5; font-style:normal; letter-spacing:.03em; vertical-align:2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero"><h1 id="h-title">신청곡 리스트</h1><p id="h-sub" hidden></p></header>
+  <div id="acts" hidden></div>
+  <section class="card"><h3>안내</h3><ul id="notes"></ul></section>
+  <section class="card" id="paid" hidden><h3>유료 신청곡</h3><div id="paid-body"></div></section>
+
+  <div id="bar">
+    <div class="row">
+      <div class="seg" id="modes"><button type="button" class="on" data-mode="singer">가수명순</button><button type="button" data-mode="title">곡명순</button></div>
+      <div class="sbox"><input id="q" type="search" placeholder="가수 또는 곡명 검색" autocomplete="off"><button type="button" id="q-x" aria-label="지우기">✕</button></div>
+    </div>
+    <div class="fs" id="fs"><button type="button" class="on" data-f="all">전체</button><button type="button" data-f="1">◈ 7080</button><button type="button" data-f="2">◆ 트로트</button><button type="button" data-f="rec">★ 강추</button></div>
+    <div class="nav" id="nav"></div>
+  </div>
+
+  <div class="meta"><span id="count"></span><span class="legend"><span class="a">◈ 7080</span><span class="b">◆ 트로트</span><span class="c">★ 강추</span></span></div>
+  <main id="list"><div class="empty">곡 리스트를 불러오는 중이에요…</div></main>
+</div>
+<button type="button" id="top" aria-label="맨 위로">▲</button>
+<div id="toast" role="status"></div>
+
+<script>
+window.boot = function (D) {
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const G = ['ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ', '기타'];
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', BASE = { 'ㄲ': 'ㄱ', 'ㄸ': 'ㄷ', 'ㅃ': 'ㅂ', 'ㅆ': 'ㅅ', 'ㅉ': 'ㅈ' };
+const clean = t => String(t).trim().replace(/^[^0-9A-Za-z가-힣]+/, '');
+const grp = t => { const c = clean(t).charCodeAt(0); if (c >= 0xAC00 && c <= 0xD7A3) { const j = CHO[Math.floor((c - 0xAC00) / 588)]; return BASE[j] || j; } return '기타'; };
+const cmp = (a, b) => a.localeCompare(b, 'ko');
+const MARK = ['', '◈', '◆'];
+const state = { mode: 'singer', q: '', f: 'all' };
+
+/* ── 머리말 ── */
+(function head() {
+  const c = D.cfg;
+  $('h-title').textContent = c.title; $('h-sub').textContent = c.sub || ''; $('h-sub').hidden = !c.sub;
+  $('notes').innerHTML = c.notices.map(n => `<li>${esc(n)}</li>`).join('');
+  if (c.paid) { $('paid').hidden = false; $('paid-body').textContent = c.paid; }
+  const act = [];
+  if (c.account) act.push(`<button type="button" class="act" id="copy-acc"><b>☕ 커피 후원</b><span>${esc(c.account)}</span><em>누르면 계좌번호가 복사돼요</em></button>`);
+  c.links.forEach(l => act.push(`<a class="act" href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.label)}</b><em>눌러서 이동해요</em></a>`));
+  $('acts').innerHTML = act.join(''); $('acts').hidden = !act.length;
+  const ca = $('copy-acc');
+  if (ca) ca.onclick = async () => {
+    const num = (c.account.match(/\d[\d-]{6,}\d/) || [c.account])[0];
+    try { await navigator.clipboard.writeText(num); } catch (e) { const t = document.createElement('textarea'); t.value = num; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+    toast('계좌번호를 복사했어요');
+  };
+})();
+let tt = 0;
+function toast(m, ms) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), ms || 1600); }
+
+/* ── 목록 ── */
+const L = D.songs.map(r => ({ s: r[0], t: r[1], m: r[2], k: r[3], n: r[4] }));
+function view() {
+  const q = state.q.trim().toLowerCase(), key = state.mode === 'singer' ? 's' : 't', oth = state.mode === 'singer' ? 't' : 's';
+  const rows = L.filter(x => (state.f === 'all' || (state.f === 'rec' ? x.k : x.m === +state.f)) && (!q || (x.s + ' ' + x.t).toLowerCase().includes(q)));
+  const by = new Map(G.map(g => [g, []]));
+  rows.forEach(x => by.get(grp(x[key])).push(x));
+  by.forEach(a => a.sort((p, q2) => cmp(clean(p[key]), clean(q2[key])) || cmp(p[oth], q2[oth])));
+  return { by, n: rows.length };
+}
+function render() {
+  const { by, n } = view();
+  const searching = state.q.trim() || state.f !== 'all';
+  const key = state.mode === 'singer' ? 's' : 't', oth = state.mode === 'singer' ? 't' : 's';
+  $('count').textContent = searching ? `${n}곡 찾았어요` : `전체 ${L.length}곡`;
+  $('nav').innerHTML = G.filter(g => g !== '기타' || by.get(g).length)
+    .map(g => `<button type="button" class="ln" data-g="${g}" ${by.get(g).length ? '' : 'disabled'}>${g}</button>`).join('');
+  const out = [];
+  G.forEach(g => {
+    const a = by.get(g);
+    if (!a.length && (searching || g === '기타')) return;
+    out.push(`<section class="grp" id="g-${G.indexOf(g)}"><h2><span>${g}</span><em>${a.length}</em></h2>` +
+      (a.length ? `<ul>${a.map(x => {
+        const st = (x.k ? '<u title="강추">★</u>' : '') + (x.n ? '<em class="new">NEW</em>' : '');
+        const name = state.mode === 'singer' ? `<b>${esc(x.s)}</b><span>${esc(x.t)}${st}</span>` : `<b>${esc(x.t)}${st}</b><span>${esc(x.s)}</span>`;
+        return `<li class="m${x.m}"><i>${MARK[x.m] || ''}</i><p>${name}</p><button type="button" class="cp" data-i="${L.indexOf(x)}" aria-label="복사">복사</button></li>`;
+      }).join('')}</ul>` : '<div class="none">없음</div>') + '</section>');
+  });
+  $('list').innerHTML = out.join('') || '<div class="empty">찾는 곡이 없어요.<br><small>다른 글자로 검색하거나 필터를 「전체」로 바꿔보세요.</small></div>';
+}
+function go(g) {
+  const el = $('g-' + G.indexOf(g)); if (!el) return;
+  const off = $('bar').offsetHeight + 8;
+  window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - off, behavior: 'smooth' });
+}
+$('list').addEventListener('click', async e => {
+  const b = e.target.closest('.cp'); if (!b) return;
+  const x = L[+b.dataset.i]; if (!x) return;
+  const txt = x.s + ' ' + x.t;
+  try { await navigator.clipboard.writeText(txt); }
+  catch (err) { const t = document.createElement('textarea'); t.value = txt; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e2) {} t.remove(); }
+  document.querySelectorAll('.cp.done').forEach(n => { n.classList.remove('done'); n.textContent = '복사'; });
+  b.classList.add('done'); b.textContent = '복사됨';
+  toast('복사되었습니다! 채팅창에 붙여넣기 하세요!(채팅입력창에 커서가 깜빡일 때 해당 부분을 꾹 누르면 붙여넣기 메뉴가 뜹니다)', 5000);
+});
+$('nav').addEventListener('click', e => { const b = e.target.closest('.ln'); if (b && !b.disabled) go(b.dataset.g); });
+$('modes').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; state.mode = b.dataset.mode; document.querySelectorAll('#modes button').forEach(x => x.classList.toggle('on', x === b)); render(); });
+$('fs').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; state.f = b.dataset.f; document.querySelectorAll('#fs button').forEach(x => x.classList.toggle('on', x === b)); render(); });
+$('q').addEventListener('input', e => { state.q = e.target.value; render(); });
+$('q-x').addEventListener('click', () => { $('q').value = ''; state.q = ''; render(); $('q').focus(); });
+$('top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+addEventListener('scroll', () => $('top').classList.toggle('on', scrollY > 500), { passive: true });
+render();
+
+};
+/* ── 데이터 불러오기 ── */
+// 앱스크립트 웹 앱 배포 주소(…/exec)를 여기에 넣으세요.
+var API_URL = 'https://script.google.com/macros/s/AKfycbwQKc6v4aXOREhw1VSSQBNLiOnpFBYEqcX0dS63ZsOdapefrcK8AAxE9l0ZdgAFvKkc/exec';
+
+(function () {
+  var done = false;
+  function fail(msg) {
+    if (done) return; done = true;
+    document.getElementById('list').innerHTML = '<div class="empty">곡 리스트를 불러오지 못했어요.<br><small>' + msg + '<br>잠시 뒤 새로고침해 주세요.</small></div>';
+  }
+  window.__slData = function (d) {
+    if (done) return; done = true;
+    if (!d || d.error || !d.songs) { done = false; return fail(d && d.error ? d.error : '데이터가 비어 있어요.'); }
+    try { localStorage.setItem('sl-cache', JSON.stringify(d)); } catch (e) {}
+    document.title = d.cfg.title;
+    window.boot(d);
+  };
+  var s = document.createElement('script');
+  s.src = API_URL + (API_URL.indexOf('?') < 0 ? '?' : '&') + 'callback=__slData&t=' + Date.now();
+  s.onerror = function () {
+    var c = null; try { c = JSON.parse(localStorage.getItem('sl-cache')); } catch (e) {}
+    if (c && c.songs) { window.__slData(c); } else fail('연결이 안 돼요.');
+  };
+  document.body.appendChild(s);
+  setTimeout(function () { if (!done) fail('응답이 늦어요.'); }, 15000);
+})();
+</script>
+</body>
+</html>
