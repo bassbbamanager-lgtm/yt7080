@@ -99,6 +99,7 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
 .grp li .tg, #rlist li .tg { font-style:normal; font-size:11px; font-weight:700; line-height:1; padding:4px 7px; border-radius:999px; white-space:nowrap; }
 .tg.t1 { color:var(--teal); background:var(--teal-soft); }
 .tg.t2 { color:var(--accent); background:var(--accent-soft); }
+.tg.t3 { color:var(--muted); background:var(--line); }
 .tg.tr { color:var(--star); background:color-mix(in srgb,var(--star) 16%,transparent); }
 </style>
 </head>
@@ -114,7 +115,7 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
       <div class="seg" id="modes"><button type="button" class="on" data-mode="singer">가수명순</button><button type="button" data-mode="title">곡명순</button></div>
       <div class="sbox"><input id="q" type="search" placeholder="가수 또는 곡명 검색" autocomplete="off"><button type="button" id="q-x" aria-label="지우기">✕</button></div>
     </div>
-    <div class="fs" id="fs"><button type="button" class="on" data-f="all">전체</button><button type="button" data-f="1">7080</button><button type="button" data-f="2">트로트</button><button type="button" data-f="rec">★ 추천</button><button type="button" data-f="new">신곡 NEW!</button></div>
+    <div class="fs" id="fs"><button type="button" class="on" data-f="all">전체</button><button type="button" data-f="1">7080</button><button type="button" data-f="2">트로트</button><button type="button" data-f="3" id="f-etc" hidden>기타</button><button type="button" data-f="rec">★ 추천</button><button type="button" data-f="new">신곡 NEW!</button></div>
     <div class="nav" id="nav"></div>
   </div>
 
@@ -135,6 +136,7 @@ const clean = t => String(t).trim().replace(/^[^0-9A-Za-z가-힣]+/, '');
 const grp = t => { const c = clean(t).charCodeAt(0); if (c >= 0xAC00 && c <= 0xD7A3) { const j = CHO[Math.floor((c - 0xAC00) / 588)]; return BASE[j] || j; } return '기타'; };
 const cmp = (a, b) => a.localeCompare(b, 'ko');
 const MARK = ['', '◈', '◆'];
+if (D.cfg.hasEtc) $('f-etc').hidden = false;
 const state = { mode: 'singer', q: '', f: 'all' };
 
 /* ── 머리말 ── */
@@ -170,7 +172,7 @@ function view() {
 function liHtml(x) {
   const st = x.n ? '<em class="new">NEW</em>' : '';
   const name = state.mode === 'singer' ? `<b>${esc(x.s)}</b><span>${esc(x.t)}${st}</span>` : `<b>${esc(x.t)}${st}</b><span>${esc(x.s)}</span>`;
-  const tg = (x.m === 1 ? '<em class="tg t1">7080</em>' : x.m === 2 ? '<em class="tg t2">트로트</em>' : '') + (x.k ? '<em class="tg tr">★추천</em>' : '');
+  const tg = (x.m === 1 ? '<em class="tg t1">7080</em>' : x.m === 2 ? '<em class="tg t2">트로트</em>' : x.m === 3 ? '<em class="tg t3">기타</em>' : '') + (x.k ? '<em class="tg tr">★추천</em>' : '');
   return `<li class="m${x.m}"><p>${name}</p>${tg ? `<span class="tgs">${tg}</span>` : ''}<button type="button" class="cp" data-i="${L.indexOf(x)}" aria-label="복사">복사</button></li>`;
 }
 function render() {
@@ -206,7 +208,7 @@ async function copyBtn(b) {
 $('list').addEventListener('click', e => { const b = e.target.closest('.cp'); if (b) copyBtn(b); });
 
 /* ── 랜덤 뽑기 (분류를 고르면 그 분류 안에서만 3곡) ── */
-const RCHIPS = [['all', '전체'], ['1', '7080'], ['2', '트로트']];
+const RCHIPS = [['all', '전체'], ['1', '7080'], ['2', '트로트']].concat(D.cfg.hasEtc ? [['3', '기타']] : []);
 const DICE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="8.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="8.5" cy="15.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/></svg>';
 const rs = { cat: 'all', last: [] };
 function rRoll() {
