@@ -83,7 +83,7 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
       <div class="seg" id="modes"><button type="button" class="on" data-mode="singer">가수명순</button><button type="button" data-mode="title">곡명순</button></div>
       <div class="sbox"><input id="q" type="search" placeholder="가수 또는 곡명 검색" autocomplete="off"><button type="button" id="q-x" aria-label="지우기">✕</button></div>
     </div>
-    <div class="fs" id="fs"><button type="button" class="on" data-f="all">전체</button><button type="button" data-f="1">◈ 7080</button><button type="button" data-f="2">◆ 트로트</button><button type="button" data-f="rec">★ 강추</button></div>
+    <div class="fs" id="fs"><button type="button" class="on" data-f="all">전체</button><button type="button" data-f="1">◈ 7080</button><button type="button" data-f="2">◆ 트로트</button><button type="button" data-f="rec">★ 강추</button><button type="button" data-f="new">신곡 NEW!</button></div>
     <div class="nav" id="nav"></div>
   </div>
 
@@ -129,7 +129,7 @@ function toast(m, ms) { const t = $('toast'); t.textContent = m; t.classList.add
 const L = D.songs.map(r => ({ s: r[0], t: r[1], m: r[2], k: r[3], n: r[4] }));
 function view() {
   const q = state.q.trim().toLowerCase(), key = state.mode === 'singer' ? 's' : 't', oth = state.mode === 'singer' ? 't' : 's';
-  const rows = L.filter(x => (state.f === 'all' || (state.f === 'rec' ? x.k : x.m === +state.f)) && (!q || (x.s + ' ' + x.t).toLowerCase().includes(q)));
+  const rows = L.filter(x => (state.f === 'all' || (state.f === 'rec' ? x.k : state.f === 'new' ? x.n : x.m === +state.f)) && (!q || (x.s + ' ' + x.t).toLowerCase().includes(q)));
   const by = new Map(G.map(g => [g, []]));
   rows.forEach(x => by.get(grp(x[key])).push(x));
   by.forEach(a => a.sort((p, q2) => cmp(clean(p[key]), clean(q2[key])) || cmp(p[oth], q2[oth])));
@@ -182,7 +182,8 @@ render();
 };
 /* ── 데이터 불러오기 ── */
 // 앱스크립트 웹 앱 배포 주소(…/exec)를 여기에 넣으세요.
-   var API_URL = 'https://script.google.com/macros/s/AKfycbwWK8anN5wRRgBjcX2gx3zHFLax68KWcI8ccN8T8uoDSY5egv65Yg30CjY6BPRTwQrcTQ/exec';
+var API_URL = '여기에_웹앱_주소(/exec)';
+
 (function () {
   var done = false;
   function fail(msg) {
