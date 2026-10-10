@@ -95,6 +95,11 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
 #rcats button { border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:5px 14px; font-size:13px; font-weight:600; color:var(--muted); }
 #rcats button.on { background:var(--fg); color:var(--bg); border-color:var(--fg); }
 #toast { z-index:60 !important; }
+.tgs { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px; flex:none; max-width:42%; }
+.grp li .tg, #rlist li .tg { font-style:normal; font-size:11px; font-weight:700; line-height:1; padding:4px 7px; border-radius:999px; white-space:nowrap; }
+.tg.t1 { color:var(--teal); background:var(--teal-soft); }
+.tg.t2 { color:var(--accent); background:var(--accent-soft); }
+.tg.tr { color:var(--star); background:color-mix(in srgb,var(--star) 16%,transparent); }
 </style>
 </head>
 <body>
@@ -109,11 +114,11 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
       <div class="seg" id="modes"><button type="button" class="on" data-mode="singer">가수명순</button><button type="button" data-mode="title">곡명순</button></div>
       <div class="sbox"><input id="q" type="search" placeholder="가수 또는 곡명 검색" autocomplete="off"><button type="button" id="q-x" aria-label="지우기">✕</button></div>
     </div>
-    <div class="fs" id="fs"><button type="button" class="on" data-f="all">전체</button><button type="button" data-f="1">◈ 7080</button><button type="button" data-f="2">◆ 트로트</button><button type="button" data-f="rec">★ 강추</button><button type="button" data-f="new">신곡 NEW!</button></div>
+    <div class="fs" id="fs"><button type="button" class="on" data-f="all">전체</button><button type="button" data-f="1">7080</button><button type="button" data-f="2">트로트</button><button type="button" data-f="rec">★ 추천</button><button type="button" data-f="new">신곡 NEW!</button></div>
     <div class="nav" id="nav"></div>
   </div>
 
-  <div class="meta"><span id="count"></span><span class="legend"><span class="a">◈ 7080</span><span class="b">◆ 트로트</span><span class="c">★ 강추</span></span></div>
+  <div class="meta"><span id="count"></span><span class="legend"></span></div>
   <main id="list"><div class="empty">곡 리스트를 불러오는 중이에요…</div></main>
 </div>
 <button type="button" id="top" aria-label="맨 위로">▲</button>
@@ -163,9 +168,10 @@ function view() {
   return { by, n: rows.length };
 }
 function liHtml(x) {
-  const st = (x.k ? '<u title="강추">★</u>' : '') + (x.n ? '<em class="new">NEW</em>' : '');
+  const st = x.n ? '<em class="new">NEW</em>' : '';
   const name = state.mode === 'singer' ? `<b>${esc(x.s)}</b><span>${esc(x.t)}${st}</span>` : `<b>${esc(x.t)}${st}</b><span>${esc(x.s)}</span>`;
-  return `<li class="m${x.m}"><i>${MARK[x.m] || ''}</i><p>${name}</p><button type="button" class="cp" data-i="${L.indexOf(x)}" aria-label="복사">복사</button></li>`;
+  const tg = (x.m === 1 ? '<em class="tg t1">7080</em>' : x.m === 2 ? '<em class="tg t2">트로트</em>' : '') + (x.k ? '<em class="tg tr">★추천</em>' : '');
+  return `<li class="m${x.m}"><p>${name}</p>${tg ? `<span class="tgs">${tg}</span>` : ''}<button type="button" class="cp" data-i="${L.indexOf(x)}" aria-label="복사">복사</button></li>`;
 }
 function render() {
   const { by, n } = view();
