@@ -69,6 +69,31 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
 .cp:hover { border-color:var(--accent); color:var(--accent); }
 .cp.done { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
 .new { display:inline-block; margin-left:5px; padding:1px 6px; border-radius:999px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; line-height:1.5; font-style:normal; letter-spacing:.03em; vertical-align:2px; }
+
+.rdice { margin-left:auto; display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 12px; border:1px solid var(--line); background:var(--surface); color:var(--accent); border-radius:999px; font-size:13px; font-weight:700; }
+.rdice:hover, .rdice:active { border-color:var(--accent); }
+.rdice svg, .rroll svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.rdice svg circle, .rroll svg circle { fill:currentColor; stroke:none; }
+#rnd { position:fixed; inset:0; z-index:40; background:rgba(10,15,30,.5); display:grid; place-items:center; padding:16px; }
+#rnd .rbox { width:min(480px,100%); max-height:92vh; overflow:auto; background:var(--bg); border:1px solid var(--line); border-radius:18px; padding:16px 16px 18px; box-shadow:0 16px 48px rgba(0,0,0,.3); }
+#rnd header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+#rnd h3 { margin:0; font-size:16px; }
+#rnd .rx { width:32px; height:32px; border:0; border-radius:50%; background:var(--line); color:var(--fg); font-size:14px; }
+#rlist { list-style:none; margin:0; padding:0; background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); }
+#rlist li { display:flex; align-items:center; gap:10px; padding:9px 14px; border-top:1px solid var(--line); }
+#rlist li:first-child { border-top:0; }
+#rlist li p { margin:0; display:grid; flex:1; min-width:0; }
+#rlist li b { font-weight:700; } #rlist li span { color:var(--muted); font-size:14px; }
+#rlist li u { text-decoration:none; color:var(--star); font-size:15px; margin-left:4px; }
+#rlist li i { flex:none; width:16px; text-align:center; font-style:normal; font-size:13px; }
+#rlist .none { padding:18px; text-align:center; color:var(--muted); font-size:14px; }
+.rroll { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:44px; margin:12px 0 10px; border:0; border-radius:12px; background:var(--accent); color:#fff; font-size:15px; font-weight:700; }
+.rroll.spin svg { animation:rspin .45s ease; }
+@keyframes rspin { from { transform:rotate(0); } to { transform:rotate(360deg); } }
+#rcats { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+#rcats button { border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:5px 14px; font-size:13px; font-weight:600; color:var(--muted); }
+#rcats button.on { background:var(--fg); color:var(--bg); border-color:var(--fg); }
+#toast { z-index:60 !important; }
 </style>
 </head>
 <body>
@@ -92,6 +117,7 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
 </div>
 <button type="button" id="top" aria-label="맨 위로">▲</button>
 <div id="toast" role="status"></div>
+<div id="rnd" hidden><div class="rbox" role="dialog" aria-modal="true" aria-label="랜덤 뽑기"><header><h3>랜덤 뽑기</h3><button type="button" class="rx" id="rx" aria-label="닫기">✕</button></header><ul id="rlist"></ul><button type="button" class="rroll" id="rroll"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="8.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="8.5" cy="15.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/></svg><span>다시</span></button><div id="rcats"></div></div></div>
 
 <script>
 window.boot = function (D) {
@@ -135,6 +161,11 @@ function view() {
   by.forEach(a => a.sort((p, q2) => cmp(clean(p[key]), clean(q2[key])) || cmp(p[oth], q2[oth])));
   return { by, n: rows.length };
 }
+function liHtml(x) {
+  const st = (x.k ? '<u title="강추">★</u>' : '') + (x.n ? '<em class="new">NEW</em>' : '');
+  const name = state.mode === 'singer' ? `<b>${esc(x.s)}</b><span>${esc(x.t)}${st}</span>` : `<b>${esc(x.t)}${st}</b><span>${esc(x.s)}</span>`;
+  return `<li class="m${x.m}"><i>${MARK[x.m] || ''}</i><p>${name}</p><button type="button" class="cp" data-i="${L.indexOf(x)}" aria-label="복사">복사</button></li>`;
+}
 function render() {
   const { by, n } = view();
   const searching = state.q.trim() || state.f !== 'all';
@@ -146,12 +177,8 @@ function render() {
   G.forEach(g => {
     const a = by.get(g);
     if (!a.length && (searching || g === '기타')) return;
-    out.push(`<section class="grp" id="g-${G.indexOf(g)}"><h2><span>${g}</span><em>${a.length}</em></h2>` +
-      (a.length ? `<ul>${a.map(x => {
-        const st = (x.k ? '<u title="강추">★</u>' : '') + (x.n ? '<em class="new">NEW</em>' : '');
-        const name = state.mode === 'singer' ? `<b>${esc(x.s)}</b><span>${esc(x.t)}${st}</span>` : `<b>${esc(x.t)}${st}</b><span>${esc(x.s)}</span>`;
-        return `<li class="m${x.m}"><i>${MARK[x.m] || ''}</i><p>${name}</p><button type="button" class="cp" data-i="${L.indexOf(x)}" aria-label="복사">복사</button></li>`;
-      }).join('')}</ul>` : '<div class="none">없음</div>') + '</section>');
+    out.push(`<section class="grp" id="g-${G.indexOf(g)}"><h2><span>${g}</span><em>${a.length}</em>${out.length ? '' : `<button type="button" class="rdice" aria-label="랜덤 뽑기">${DICE}<span>랜덤</span></button>`}</h2>` +
+      (a.length ? `<ul>${a.map(liHtml).join('')}</ul>` : '<div class="none">없음</div>') + '</section>');
   });
   $('list').innerHTML = out.join('') || '<div class="empty">찾는 곡이 없어요.<br><small>다른 글자로 검색하거나 필터를 「전체」로 바꿔보세요.</small></div>';
 }
@@ -160,8 +187,7 @@ function go(g) {
   const off = $('bar').offsetHeight + 8;
   window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - off, behavior: 'smooth' });
 }
-$('list').addEventListener('click', async e => {
-  const b = e.target.closest('.cp'); if (!b) return;
+async function copyBtn(b) {
   const x = L[+b.dataset.i]; if (!x) return;
   const txt = x.s + ' ' + x.t;
   try { await navigator.clipboard.writeText(txt); }
@@ -169,7 +195,41 @@ $('list').addEventListener('click', async e => {
   document.querySelectorAll('.cp.done').forEach(n => { n.classList.remove('done'); n.textContent = '복사'; });
   b.classList.add('done'); b.textContent = '복사됨';
   toast('복사되었습니다! 채팅창에 붙여넣기 하세요!(채팅입력창에 커서가 깜빡일 때 해당 부분을 꾹 누르면 붙여넣기 메뉴가 뜹니다)', 5000);
+}
+$('list').addEventListener('click', e => { const b = e.target.closest('.cp'); if (b) copyBtn(b); });
+
+/* ── 랜덤 뽑기 (분류를 고르면 그 분류 안에서만 3곡) ── */
+const RCHIPS = [['all', '전체'], ['1', '7080'], ['2', '트로트']];
+const DICE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="8.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="8.5" cy="15.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/></svg>';
+const rs = { cat: 'all', last: [] };
+function rRoll() {
+  const pool = L.filter(x => rs.cat === 'all' || x.m === +rs.cat);
+  let cand = pool.filter(x => !rs.last.includes(x));
+  if (cand.length < 3) cand = pool;
+  const a = cand.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  rs.last = a.slice(0, 3);
+  $('rlist').innerHTML = rs.last.length ? rs.last.map(liHtml).join('') : '<div class="none">이 분류에는 곡이 없어요</div>';
+  const r = $('rroll'); r.classList.remove('spin'); void r.offsetWidth; r.classList.add('spin');
+}
+function rOpen() {
+  rs.cat = 'all'; rs.last = [];
+  $('rcats').innerHTML = RCHIPS.map(c => `<button type="button" data-c="${c[0]}" class="${c[0] === 'all' ? 'on' : ''}">${esc(c[1])}</button>`).join('');
+  $('rnd').hidden = false; rRoll();
+}
+const rClose = () => { $('rnd').hidden = true; };
+$('rroll').addEventListener('click', rRoll);
+$('rcats').addEventListener('click', e => {
+  const b = e.target.closest('[data-c]'); if (!b) return;
+  rs.cat = b.dataset.c; rs.last = [];
+  document.querySelectorAll('#rcats button').forEach(x => x.classList.toggle('on', x === b));
+  rRoll();
 });
+$('rx').addEventListener('click', rClose);
+$('rnd').addEventListener('click', e => { if (e.target === $('rnd')) rClose(); });
+addEventListener('keydown', e => { if (e.key === 'Escape') rClose(); });
+$('rlist').addEventListener('click', e => { const b = e.target.closest('.cp'); if (b) copyBtn(b); });
+$('list').addEventListener('click', e => { if (e.target.closest('.rdice')) rOpen(); });
 $('nav').addEventListener('click', e => { const b = e.target.closest('.ln'); if (b && !b.disabled) go(b.dataset.g); });
 $('modes').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; state.mode = b.dataset.mode; document.querySelectorAll('#modes button').forEach(x => x.classList.toggle('on', x === b)); render(); });
 $('fs').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; state.f = b.dataset.f; document.querySelectorAll('#fs button').forEach(x => x.classList.toggle('on', x === b)); render(); });
