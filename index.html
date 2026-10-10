@@ -70,8 +70,9 @@ header.hero p { margin:2px 0 0; color:var(--muted); font-size:13px; }
 .cp.done { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
 .new { display:inline-block; margin-left:5px; padding:1px 6px; border-radius:999px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; line-height:1.5; font-style:normal; letter-spacing:.03em; vertical-align:2px; }
 
-.rdice { margin-left:auto; display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 12px; border:1px solid var(--line); background:var(--surface); color:var(--accent); border-radius:999px; font-size:13px; font-weight:700; }
-.rdice:hover, .rdice:active { border-color:var(--accent); }
+.grp h2 .rdice { margin-left:auto; display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 4px; border:0; background:transparent; color:var(--accent); font-size:14px; font-weight:700; }
+.grp h2 .rdice span { display:inline; min-width:0; height:auto; padding:0; background:none; color:inherit; border-radius:0; font-size:14px; }
+.grp h2 .rdice:hover, .grp h2 .rdice:active { opacity:.75; }
 .rdice svg, .rroll svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .rdice svg circle, .rroll svg circle { fill:currentColor; stroke:none; }
 #rnd { position:fixed; inset:0; z-index:40; background:rgba(10,15,30,.5); display:grid; place-items:center; padding:16px; }
